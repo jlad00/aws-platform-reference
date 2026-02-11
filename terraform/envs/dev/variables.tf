@@ -42,4 +42,6 @@ variable "private_subnets" {
 variable "budget_email" {
   type        = string
   description = "Email for AWS Budget alerts."
+  default     = ""
 }
+

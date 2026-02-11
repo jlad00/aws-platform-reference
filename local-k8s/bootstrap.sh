@@ -9,6 +9,7 @@ if ! kind get clusters | grep -q "^${CLUSTER_NAME}$"; then
 fi
 
 kind export kubeconfig --name "${CLUSTER_NAME}"
+kubectl config use-context "kind-${CLUSTER_NAME}" >/dev/null
 
 echo "[2/6] Ensure ingress-ready label"
 kubectl label node "${CLUSTER_NAME}-control-plane" ingress-ready=true --overwrite

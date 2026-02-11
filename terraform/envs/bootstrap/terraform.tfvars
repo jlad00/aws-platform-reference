@@ -1,3 +1,5 @@
 github_owner = "jlad00"
 github_repo  = "aws-platform-reference"
-# aws_region / project_name can stay default for now
+
+enable_dynamodb_lock = false
+enable_github_oidc   = false

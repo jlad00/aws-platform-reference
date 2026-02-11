@@ -2,20 +2,14 @@ name: terraform-ci
 
 on:
   pull_request:
-    paths:
-      - "terraform/**"
+    paths: ["terraform/**"]
   push:
     branches: ["main"]
-    paths:
-      - "terraform/**"
+    paths: ["terraform/**"]
 
 jobs:
-  terraform-validate:
+  validate:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-
     steps:
       - uses: actions/checkout@v4
 
@@ -26,13 +20,13 @@ jobs:
       - name: terraform fmt
         run: terraform fmt -check -recursive
 
-      - name: terraform validate (bootstrap)
+      - name: validate bootstrap
         working-directory: terraform/envs/bootstrap
         run: |
           terraform init -backend=false
           terraform validate
 
-      - name: terraform validate (dev)
+      - name: validate dev
         working-directory: terraform/envs/dev
         run: |
           terraform init -backend=false

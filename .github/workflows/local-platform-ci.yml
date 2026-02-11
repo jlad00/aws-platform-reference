@@ -31,7 +31,5 @@ jobs:
         run: |
           curl -L https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar -xz
           sudo mv kubeconform /usr/local/bin/kubeconform
-      - name: Validate Kubernetes manifests
-        run: |
-          kubeconform -strict -ignore-missing-schemas local-k8s/apps/*.yaml
-          kubeconform -strict -ignore-missing-schemas local-k8s/apps/*.yml || true
+      - name: Validate manifests
+        run: kubeconform -strict -ignore-missing-schemas local-k8s/apps/*.yaml
