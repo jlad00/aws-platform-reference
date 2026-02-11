@@ -1,23 +1,27 @@
 # aws-platform-reference
 
-What this repo does
+A portfolio-friendly platform reference that is **safe-by-default** (minimal AWS spend) and **fully runnable locally**.
 
-AWS foundation (low-cost): Terraform backend + optional VPC + budget guardrail (no EKS by default)
+## What this repo demonstrates
 
-Local platform (free): kind + ingress-nginx + Prometheus/Grafana + sample app
+### Local platform (free)
+- kind Kubernetes cluster
+- ingress-nginx
+- Prometheus + Grafana (kube-prometheus-stack)
+- sample app exposed at `http://hello.local`
 
-Cost safety
+### AWS foundation (optional / low-cost)
+- Terraform S3 backend (with lockfile)
+- optional VPC (disabled by default)
+- AWS Budget alert ($5) to prevent surprise spend
 
-enable_vpc=false by default
+## Cost safety
+- `enable_vpc=false` by default (no VPC/NAT spend)
+- no EKS in dev (EKS control plane costs money if left running)
+- budget alert at $5
 
-No EKS in dev
+## Quickstart (local platform)
+**Prereqs:** Docker Desktop + WSL2 (Ubuntu), `kubectl`, `kind`, `helm`
 
-Monthly budget alert set to $5
-
-Quickstart
-
-local-k8s/bootstrap.sh
-
-Grafana access instructions
-
-terraform/envs/bootstrap then terraform/envs/dev
+```bash
+./local-k8s/bootstrap.sh

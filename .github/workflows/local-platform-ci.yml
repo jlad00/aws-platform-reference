@@ -1,0 +1,37 @@
+name: local-platform-ci
+
+on:
+  pull_request:
+    paths:
+      - "app/**"
+      - "local-k8s/**"
+      - "README.md"
+      - "RUNBOOK.md"
+  push:
+    branches: ["main"]
+    paths:
+      - "app/**"
+      - "local-k8s/**"
+      - "README.md"
+      - "RUNBOOK.md"
+
+jobs:
+  docker-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build app image
+        run: docker build -t hello-app:ci -f app/dockerfile app
+
+  validate-k8s:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install kubeconform
+        run: |
+          curl -L https://github.com/yannh/kubeconform/releases/latest/download/kubeconform-linux-amd64.tar.gz | tar -xz
+          sudo mv kubeconform /usr/local/bin/kubeconform
+      - name: Validate Kubernetes manifests
+        run: |
+          kubeconform -strict -ignore-missing-schemas local-k8s/apps/*.yaml
+          kubeconform -strict -ignore-missing-schemas local-k8s/apps/*.yml || true

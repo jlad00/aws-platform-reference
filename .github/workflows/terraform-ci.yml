@@ -1,0 +1,39 @@
+name: terraform-ci
+
+on:
+  pull_request:
+    paths:
+      - "terraform/**"
+  push:
+    branches: ["main"]
+    paths:
+      - "terraform/**"
+
+jobs:
+  terraform-validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.6.6"
+
+      - name: terraform fmt
+        run: terraform fmt -check -recursive
+
+      - name: terraform validate (bootstrap)
+        working-directory: terraform/envs/bootstrap
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: terraform validate (dev)
+        working-directory: terraform/envs/dev
+        run: |
+          terraform init -backend=false
+          terraform validate
