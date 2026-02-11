@@ -9,10 +9,6 @@ variable "project_name" {
 }
 
 variable "github_owner" {
-  type = string
-}
-
-variable "github_owner" {
   type        = string
   description = "GitHub org/user that owns the repo (only used when enable_github_oidc=true)."
   default     = ""

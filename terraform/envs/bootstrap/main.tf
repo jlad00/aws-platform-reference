@@ -10,7 +10,8 @@ data "aws_caller_identity" "current" {}
 # Terraform state bucket
 # -------------------------
 resource "aws_s3_bucket" "tf_state" {
-  bucket = local.state_bucket_name
+  bucket        = local.state_bucket_name
+  force_destroy = false
 }
 
 resource "aws_s3_bucket_versioning" "tf_state" {
