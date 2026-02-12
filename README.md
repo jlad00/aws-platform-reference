@@ -9,7 +9,7 @@ Fully local Kubernetes platform with observability
 The design intentionally separates cloud infrastructure from platform engineering so experimentation can happen without cost risk.
 
 What This Repository Demonstrates
-1️⃣ Terraform: Secure AWS Foundation (Optional)
+1 Terraform: Secure AWS Foundation (Optional)
 
 Located in terraform/
 
@@ -48,7 +48,7 @@ Running terraform plan creates no billable infrastructure unless explicitly enab
 
 This repository is safe to clone and explore.
 
-2️⃣ Local Kubernetes Platform (Free)
+2 Local Kubernetes Platform (Free)
 
 Located in local-k8s/
 
@@ -91,7 +91,7 @@ Terraform (bootstrap)
 
 This enables a real-world remote Terraform backend suitable for CI workflows.
 
-🚀 Quickstart: Local Platform Lab
+Quickstart: Local Platform Lab
 Requirements
 
 Windows:
@@ -187,7 +187,7 @@ admin / admin
 Cleanup
 kind delete cluster --name platform-lab
 
-🔁 CI Workflows
+CI Workflows:
 
 Located in .github/workflows/
 
@@ -215,7 +215,7 @@ Kubernetes YAML remains syntactically correct
 
 CI works without requiring cloud credentials
 
-🎯 Purpose of This Project
+-Purpose of This Project
 
 This project demonstrates:
 
