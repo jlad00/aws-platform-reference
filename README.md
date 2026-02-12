@@ -150,6 +150,85 @@ This ensures:
     Terraform configuration remains valid
     Kubernetes YAML remains syntactically correct
 
+## Quickstart (Local Platform Lab)
+
+This runs a local Kubernetes cluster using **kind + Docker Desktop (WSL2 integration)**, installs **ingress-nginx**, deploys a sample app, and installs **Prometheus + Grafana**.
+
+### Prereqs (Windows)
+- Docker Desktop installed
+- Settings → Resources → WSL Integration → enable your Ubuntu distro
+- A WSL2 Ubuntu distro installed and working
+
+### Prereqs (WSL Ubuntu)
+From Ubuntu/WSL:
+
+```bash
+sudo apt update
+sudo apt install -y curl ca-certificates git
+
+Install kubectl (binary):
+
+KUBECTL_VERSION="v1.29.2"
+curl -fsSLo /tmp/kubectl "https://dl.k8s.io/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl"
+sudo install -m 0755 /tmp/kubectl /usr/local/bin/kubectl
+kubectl version --client
+
+Install kind:
+
+KIND_VERSION="v0.22.0"
+curl -fsSLo /tmp/kind "https://kind.sigs.k8s.io/dl/${KIND_VERSION}/kind-linux-amd64"
+sudo install -m 0755 /tmp/kind /usr/local/bin/kind
+kind version
+
+Install helm (no snap; works well in WSL):
+
+curl -fsSL https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+helm version
+docker version
+docker ps
+
+Create the cluster
+
+From repo root:
+
+kind create cluster --name platform-lab --config local-k8s/kind-config.yaml
+kind export kubeconfig --name platform-lab
+kubectl config use-context kind-platform-lab >/dev/null
+kubectl get nodes
+
+
+Label node for ingress-nginx (required for kind provider manifest):
+
+kubectl label node platform-lab-control-plane ingress-ready=true --overwrite
+
+Install ingress-nginx
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/kind/deploy.yaml
+kubectl wait -n ingress-nginx --for=condition=Ready pod --selector=app.kubernetes.io/component=controller --timeout=180s
+kubectl get pods -n ingress-nginx
+
+Deploy sample app + ingress
+kubectl apply -f local-k8s/apps/hello.yaml
+kubectl apply -f local-k8s/apps/hello-ingress.yaml
+kubectl get deploy,po,svc,ingress
+
+Install monitoring (Prometheus + Grafana)
+kubectl create namespace monitoring >/dev/null 2>&1 || true
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts >/dev/null 2>&1 || true
+helm repo update
+helm upgrade --install monitoring prometheus-community/kube-prometheus-stack \
+  -n monitoring \
+  -f local-k8s/observability-values.yaml
+
+kubectl get pods -n monitoring
+
+Access the app (hello.local)
+
+admin / admin
+
+Cleanup
+kind delete cluster --name platform-lab
+
+----
 Purpose of this Repo
 This project demonstrates:  
     Cost-aware infrastructure design
