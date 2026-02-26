@@ -2,6 +2,12 @@ locals {
   state_bucket_name = "${var.project_name}-tfstate-${data.aws_caller_identity.current.account_id}"
   lock_table_name   = "${var.project_name}-tflock"
   gha_role_name     = "${var.project_name}-gha-terraform"
+
+  tags = {
+    Project     = var.project_name
+    Environment = "bootstrap"
+    ManagedBy   = "Terraform"
+  }
 }
 
 data "aws_caller_identity" "current" {}
@@ -12,6 +18,7 @@ data "aws_caller_identity" "current" {}
 resource "aws_s3_bucket" "tf_state" {
   bucket        = local.state_bucket_name
   force_destroy = false
+  tags          = local.tags
 }
 
 resource "aws_s3_bucket_versioning" "tf_state" {
@@ -43,6 +50,20 @@ resource "aws_s3_bucket_ownership_controls" "tf_state" {
   bucket = aws_s3_bucket.tf_state.id
   rule {
     object_ownership = "BucketOwnerEnforced"
+  }
+}
+
+# Cost control: expire old noncurrent versions (state bucket has versioning enabled)
+resource "aws_s3_bucket_lifecycle_configuration" "tf_state" {
+  bucket = aws_s3_bucket.tf_state.id
+
+  rule {
+    id     = "expire-noncurrent-versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 60
+    }
   }
 }
 
@@ -85,6 +106,7 @@ resource "aws_dynamodb_table" "tf_lock" {
   name         = local.lock_table_name
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
+  tags         = local.tags
 
   attribute {
     name = "LockID"
@@ -98,12 +120,14 @@ resource "aws_dynamodb_table" "tf_lock" {
 resource "aws_iam_openid_connect_provider" "github" {
   count = var.enable_github_oidc ? 1 : 0
 
-  url = "https://token.actions.githubusercontent.com"
-
+  url            = "https://token.actions.githubusercontent.com"
   client_id_list = ["sts.amazonaws.com"]
 
-  # GitHub Actions OIDC root CA thumbprint (commonly used)
+  # GitHub Actions OIDC root CA thumbprint (commonly used).
+  # Note: if this ever changes, update the thumbprint per GitHub/AWS guidance.
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1"]
+
+  tags = local.tags
 }
 
 data "aws_iam_policy_document" "gha_assume_role" {
@@ -137,6 +161,7 @@ resource "aws_iam_role" "gha_terraform" {
   count              = var.enable_github_oidc ? 1 : 0
   name               = local.gha_role_name
   assume_role_policy = data.aws_iam_policy_document.gha_assume_role[0].json
+  tags               = local.tags
 }
 
 # Minimal policy for Terraform backend operations (state bucket + optional DynamoDB lock)
@@ -186,6 +211,7 @@ resource "aws_iam_policy" "gha_terraform_minimal" {
   count  = var.enable_github_oidc ? 1 : 0
   name   = "${var.project_name}-gha-terraform-minimal"
   policy = data.aws_iam_policy_document.gha_terraform_minimal[0].json
+  tags   = local.tags
 }
 
 resource "aws_iam_role_policy_attachment" "gha_terraform_minimal" {

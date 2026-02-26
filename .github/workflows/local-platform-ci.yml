@@ -33,3 +33,5 @@ jobs:
           sudo mv kubeconform /usr/local/bin/kubeconform
       - name: Validate manifests
         run: kubeconform -strict -ignore-missing-schemas local-k8s/apps/*.yaml
+      - name: Python syntax check
+        run: python -m py_compile app/app.py

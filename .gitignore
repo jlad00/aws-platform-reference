@@ -1,9 +1,13 @@
+# Terraform
 **/.terraform/*
-*.tfstate
-*.tfstate.*
-*.tfvars
-*.tfvars.json
-.terraformrc
-terraform.rc
+**/*.tfstate
+**/*.tfstate.*
+**/.terraform.lock.hcl  # optional: many teams DO commit this; choose one approach
 crash.log
 crash.*.log
+*.tfvars
+*.tfvars.json
+
+# OS / tooling
+.DS_Store
+Thumbs.db

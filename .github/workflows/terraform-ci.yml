@@ -16,8 +16,20 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: "1.6.6"
+      
+      - name: Install TFLint
+        uses: terraform-linters/setup-tflint@v4
+        with:
+          tflint_version: v0.53.0
+
+      - name: TFLint (terraform/)
+        working-directory: terraform
+        run: |
+          tflint --init
+          tflint -f compact
 
       - name: terraform fmt
+        working-directory: terraform
         run: terraform fmt -check -recursive
 
       - name: validate bootstrap
