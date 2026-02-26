@@ -298,5 +298,3 @@ It intentionally avoids:
 - Full production EKS architecture
 - Enterprise landing zones / multi-account AWS design
 - Complex GitOps operators and HA cluster patterns
-
-If you're hiring for a platform/infrastructure role, this repo is meant to show how I think: safe defaults, reproducibility, and operational hygiene.
