@@ -1,4 +1,5 @@
 AWS Platform Reference
+
 Cost-Safe AWS Foundation + Local Kubernetes Platform Lab
 
 This repository demonstrates practical platform engineering patterns in two safe, reproducible environments:
@@ -9,9 +10,8 @@ Fully local Kubernetes platform with observability
 
 The design intentionally separates cloud infrastructure from platform experimentation so development and validation can occur without cost risk.
 
-Overview
-What This Repository Demonstrates
-1️⃣ Terraform: Secure AWS Foundation (Optional)
+What This Project Demonstrates
+Terraform: Secure AWS Foundation (Optional)
 
 Located in terraform/
 
@@ -35,22 +35,20 @@ Lifecycle rule to expire old versions (cost control)
 
 Optional DynamoDB state locking
 
-Optional GitHub Actions OIDC role for CI
+Optional GitHub Actions OIDC role
 
 Optional VPC module
 
 Optional AWS budget alert
 
-Cost Safety Defaults
-enable_vpc            = false
-enable_github_oidc    = false
-enable_dynamodb_lock  = false
+Safe Defaults
+enable_vpc           = false
+enable_github_oidc   = false
+enable_dynamodb_lock = false
 
 Running terraform plan in envs/dev creates no billable infrastructure unless explicitly enabled.
 
-This repository is safe to clone and explore.
-
-2️⃣ Local Kubernetes Platform (Free)
+Local Kubernetes Platform (Free)
 
 Located in local-k8s/
 
@@ -89,9 +87,9 @@ Terraform (bootstrap)
 ├── Optional DynamoDB lock table
 └── Optional GitHub OIDC IAM role
 
-This enables a real-world remote Terraform backend suitable for CI workflows.
+Enables a real-world remote Terraform backend suitable for CI workflows.
 
-Terraform Structure
+Repository Structure
 terraform/
 ├── envs/
 │   ├── bootstrap/
@@ -100,62 +98,11 @@ terraform/
 │   ├── vpc/
 │   ├── budget/
 │   └── _optional/
-Bootstrap Environment
 
-Creates:
-
-Remote state bucket
-
-Optional lock table
-
-Optional GitHub OIDC role
-
-Run once:
-
-cd terraform/envs/bootstrap
-terraform init
-terraform apply
-Dev Environment
-
-Safe-by-default infrastructure:
-
-cd terraform/envs/dev
-terraform init
-terraform plan
-
-No infrastructure is created unless enable_vpc=true.
-
-CI Workflows
-
-Located in .github/workflows/
-
-terraform-ci.yml
-
-terraform fmt -check
-
-terraform validate
-
-tflint (AWS ruleset)
-
-No AWS credentials required
-
-Runs on PRs and pushes
-
-local-platform-ci.yml
-
-Builds sample Docker image
-
-Validates Kubernetes manifests with kubeconform
-
-This ensures:
-
-Terraform configuration remains valid
-
-Kubernetes manifests are syntactically correct
-
-CI works without cloud credentials
-
-Quickstart: Local Platform Lab
+local-k8s/
+app/
+.github/workflows/
+Quickstart – Local Platform Lab
 Requirements
 
 Windows:
@@ -193,12 +140,9 @@ Verify Docker:
 
 docker version
 Create Cluster
-
-From repo root:
-
 kind create cluster --name platform-lab --config local-k8s/kind-config.yaml
 kind export kubeconfig --name platform-lab
-kubectl config use-context kind-platform-lab >/dev/null
+kubectl config use-context kind-platform-lab
 kubectl label node platform-lab-control-plane ingress-ready=true --overwrite
 Install ingress-nginx
 kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/kind/deploy.yaml
@@ -211,7 +155,7 @@ Deploy Sample App
 kubectl apply -f local-k8s/apps/hello.yaml
 kubectl apply -f local-k8s/apps/hello-ingress.yaml
 Install Monitoring
-kubectl create namespace monitoring >/dev/null 2>&1 || true
+kubectl create namespace monitoring || true
 
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
@@ -240,7 +184,29 @@ Default credentials:
 admin / admin
 Cleanup
 kind delete cluster --name platform-lab
-Design Principles
+CI Workflows
+
+Located in .github/workflows/
+
+terraform-ci.yml
+
+terraform fmt
+
+terraform validate
+
+tflint (AWS ruleset)
+
+No AWS credentials required
+
+Runs on PRs and pushes
+
+local-platform-ci.yml
+
+Builds sample Docker image
+
+Validates Kubernetes manifests with kubeconform
+
+Design Intent
 
 This project demonstrates:
 
@@ -250,9 +216,9 @@ Hardened Terraform backend patterns
 
 Modular IaC structure
 
-CI validation without cloud credentials
-
 Secure GitHub OIDC integration
+
+CI validation without cloud credentials
 
 Kubernetes bootstrapping with kind
 
@@ -266,8 +232,6 @@ Full production EKS architecture
 
 Enterprise landing zones
 
-Multi-account AWS design
+Multi-account AWS environments
 
-GitOps operators
-
-Production HA Kubernetes clusters
+Complex GitOps tooling
